@@ -1,0 +1,71 @@
+{
+  "name": "cats-bff",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/cats/bff/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/webpack:webpack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "target": "node",
+        "compiler": "tsc",
+        "externalDependencies": "none",
+        "outputPath": "dist/apps/cats/bff",
+        "main": "apps/cats/bff/src/main.ts",
+        "tsConfig": "apps/cats/bff/tsconfig.app.json",
+        "assets": ["apps/cats/bff/src/assets"],
+        "isolatedConfig": true,
+        "webpackConfig": "apps/cats/bff/webpack.config.js"
+      },
+      "configurations": {
+        "local": {
+          "main": "apps/cats/bff/local-lambda.ts"
+        },
+        "development": {},
+        "production": {}
+      }
+    },
+    "serve": {
+      "executor": "@nrwl/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "cats-bff:build"
+      },
+      "configurations": {
+        "local": {
+          "buildTarget": "cats-bff:build:local"
+        },
+        "development": {
+          "buildTarget": "cats-bff:build:development"
+        },
+        "production": {
+          "buildTarget": "cats-bff:build:production"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/cats/bff/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "apps/cats/bff/jest.config.ts",
+        "passWithNoTests": true
+      },
+      "configurations": {
+        "ci": {
+          "ci": true,
+          "codeCoverage": true
+        }
+      }
+    }
+  },
+  "tags": []
+}
