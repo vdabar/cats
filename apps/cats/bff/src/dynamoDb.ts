@@ -7,7 +7,7 @@ export async function getAllCats(): Promise<Cat[]> {
   const client = new DynamoDB({ region: 'eu-west-1' });
   const params = { TableName: config.CATS_DYNAMO_TABLE };
   const result = await client.scan(params);
-  return result.Items.map((item) => unmarshall(item)) as unknown as Cat[];
+  return result.Items?.map((item) => unmarshall(item)) as unknown as Cat[];
 }
 
 export async function addCat(cat: Cat) {
@@ -36,7 +36,7 @@ export async function getCatById(id: string): Promise<Cat> {
     Key: marshall({ id }),
   };
   const result = await client.getItem(params);
-  return unmarshall(result.Item) as unknown as Cat;
+  return result.Item ? (unmarshall(result.Item) as unknown as Cat) : undefined;
 }
 
 export async function getCatsByName(name: string): Promise<Cat[]> {
@@ -46,8 +46,8 @@ export async function getCatsByName(name: string): Promise<Cat[]> {
     IndexName: 'NameIndex',
     KeyConditionExpression: '#name = :name',
     ExpressionAttributeNames: { '#name': 'name' },
-    ExpressionAttributeValues: marshall({ ':name': name}),
+    ExpressionAttributeValues: marshall({ ':name': name }),
   };
   const result = await client.query(params);
-  return result.Items.map((item) => unmarshall(item)) as unknown as Cat[];
+  return result.Items?.map((item) => unmarshall(item)) as unknown as Cat[];
 }
