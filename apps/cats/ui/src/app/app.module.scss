@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;800&family=Sora:wght@400;700&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;800&family=Sora:wght@400;700&display=swap');
 * {
   margin: 0;
   padding: 0;
@@ -9,14 +9,7 @@ a {
   text-decoration: none;
   color: rgb(20 184 166);
 }
-body{
+body {
   font-family: 'Montserrat', sans-serif;
-font-family: 'Sora', sans-serif;
-}
-.gradient-background {
-  background-image: linear-gradient(0deg,#0f051d 30%,#130749 70%);
-  min-height: 100vh;
-}
-.tablehead-background{
-  background: linear-gradient(25deg,#2600fc,#ff00ea);
+  font-family: 'Sora', sans-serif;
 }

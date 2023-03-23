@@ -20,33 +20,34 @@ const Tagline = styled('div')(({ theme }) => ({
 
 export function Banner() {
   return (
-    <Container>
-      <BannerContent>
-        <Tagline>
-          <Typography
-            variant="h3"
-            style={{
-              fontWeight: 'bold',
-              marginBottom: 15,
-              fontFamily: 'Montserrat',
-            }}
-          >
-            Welcome to the BreedView
-          </Typography>
-          <Typography
-            variant="subtitle2"
-            style={{
-              color: 'darkgrey',
-              textTransform: 'capitalize',
-              fontFamily: 'Montserrat',
-            }}
-          >
-            Get all the Info regarding your favorite Cat Breeds
-          </Typography>
-        </Tagline>
-        <Carousel />
-      </BannerContent>
-    </Container>
+    <div style={{ background: '#250036' }}>
+      <Container>
+        <BannerContent>
+          <Tagline>
+            <Typography
+              variant="h3"
+              style={{
+                fontWeight: 'bold',
+                marginBottom: 15,
+                fontFamily: 'Montserrat',
+              }}
+            >
+              Welcome to the BreedView
+            </Typography>
+            <Typography
+              variant="subtitle2"
+              style={{
+                color: '#aeaeae',
+                textTransform: 'capitalize',
+              }}
+            >
+              Get all the Info regarding your favorite Cat Breeds
+            </Typography>
+          </Tagline>
+          <Carousel />
+        </BannerContent>
+      </Container>
+    </div>
   );
 }
 

@@ -6,7 +6,9 @@
   "targets": {
     "build": {
       "executor": "@nrwl/webpack:webpack",
-      "outputs": ["{options.outputPath}"],
+      "outputs": [
+        "{options.outputPath}"
+      ],
       "defaultConfiguration": "production",
       "options": {
         "compiler": "babel",
@@ -19,7 +21,9 @@
           "apps/cats/ui/src/favicon.ico",
           "apps/cats/ui/src/assets"
         ],
-        "styles": ["apps/cats/ui/src/styles.scss"],
+        "styles": [
+          "apps/cats/ui/src/styles.scss"
+        ],
         "scripts": [],
         "isolatedConfig": true,
         "webpackConfig": "apps/cats/ui/webpack.config.js"
@@ -67,14 +71,20 @@
     },
     "lint": {
       "executor": "@nrwl/linter:eslint",
-      "outputs": ["{options.outputFile}"],
+      "outputs": [
+        "{options.outputFile}"
+      ],
       "options": {
-        "lintFilePatterns": ["apps/cats/ui/**/*.{ts,tsx,js,jsx}"]
+        "lintFilePatterns": [
+          "apps/cats/ui/**/*.{ts,tsx,js,jsx}"
+        ]
       }
     },
     "test": {
       "executor": "@nrwl/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "outputs": [
+        "{workspaceRoot}/coverage/{projectRoot}"
+      ],
       "options": {
         "jestConfig": "apps/cats/ui/jest.config.ts",
         "passWithNoTests": true

@@ -1,23 +1,26 @@
 import { Homepage } from './pages/Homepage';
 import './app.module.scss';
-import { Box } from "@mui/material";
-import {BrowserRouter as Router,Routes,Route} from 'react-router-dom'
-import 'react-alice-carousel/lib/alice-carousel.css';
+import { Box } from '@mui/material';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { QueryProvider } from './QueryProvider/QueryProvider';
 export function App() {
   return (
-    <Router>
-      <Box  sx={{
-          backgroundColor: "#1F2937",
-          color: "white",
-          minHeight: "100vh",
-        }}>
-      <div>
-        <Routes>
-        <Route path='/' element={<Homepage/>}/>
-        </Routes>
-      </div>
-      </Box>
-    </Router>
+    <QueryProvider>
+      <Router>
+        <Box
+          sx={{
+            color: '#fafafa',
+            minHeight: '100vh',
+          }}
+        >
+          <div>
+            <Routes>
+              <Route path="/" element={<Homepage />} />
+            </Routes>
+          </div>
+        </Box>
+      </Router>
+    </QueryProvider>
   );
 }
 

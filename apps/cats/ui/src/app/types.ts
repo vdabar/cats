@@ -11,6 +11,7 @@ export interface Breed {
   country_codes: string;
   country_code: string;
   description: string;
+  breed_group: string;
   life_span: string;
   indoor: number;
   lap: number;

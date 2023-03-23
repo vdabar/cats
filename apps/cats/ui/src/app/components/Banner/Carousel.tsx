@@ -1,23 +1,12 @@
-import { useEffect, useState } from 'react';
-import Axios from 'axios';
+
 import AliceCarousel from 'react-alice-carousel';
-import { Breed } from '../../../types';
+import { Breed } from '../../types';
+import { useGetCountriesQuery } from '../../services/breeds';
 
 export const Carousel = () => {
-  const [breeds, setBreeds] = useState([]);
-  const fetchTrendingCoins = async () => {
-    const { data } = await Axios.get(
-      `https://api.thecatapi.com/v1/breeds?limit=5&page=${
-        Math.floor(Math.random() * 10) + 1
-      }`
-    );
-    setBreeds(data);
-  };
-  useEffect(() => {
-    fetchTrendingCoins();
-  }, []);
 
-  const items = breeds.map((breed: Breed) => {
+  const breeds = useGetCountriesQuery();
+  const items = breeds.data?.map((breed: Breed) => {
     return (
       <a
         style={{
@@ -36,7 +25,7 @@ export const Carousel = () => {
           height="120"
           style={{ marginBottom: 10 }}
         />
-        <span style={{ fontSize: 18, fontWeight: 500 }}>{breed.name}</span>
+        <span style={{ fontSize: 14, fontWeight: 500 }}>{breed.name}</span>
       </a>
     );
   });
