@@ -40,3 +40,8 @@ terraform init -backend-config="bucket=cat-breeds-terraform-remote"
 ```
 terraform apply -auto-approve -var-file=configuration.tfvars
 ```
+
+- terraform destroy after no longer used
+```
+terraform destroy -auto-approve -var-file=configuration.tfvars 
+```
