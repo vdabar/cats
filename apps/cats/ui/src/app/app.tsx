@@ -1,8 +1,9 @@
-import { Homepage } from './pages/Homepage';
+import Breeds from './pages/Breeds';
 import './app.module.scss';
 import { Box } from '@mui/material';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryProvider } from './QueryProvider/QueryProvider';
+import Cats from './pages/Cats';
 export function App() {
   return (
     <QueryProvider>
@@ -15,7 +16,8 @@ export function App() {
         >
           <div>
             <Routes>
-              <Route path="/" element={<Homepage />} />
+              <Route path="/" element={<Breeds />} />
+              <Route path="/Cats" element={<Cats />} />
             </Routes>
           </div>
         </Box>

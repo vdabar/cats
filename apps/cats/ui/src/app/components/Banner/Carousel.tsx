@@ -1,11 +1,9 @@
-
 import AliceCarousel from 'react-alice-carousel';
 import { Breed } from '../../types';
-import { useGetCountriesQuery } from '../../services/breeds';
+import { useGetBreedsQuery } from '../../services/breeds';
 
-export const Carousel = () => {
-
-  const breeds = useGetCountriesQuery();
+export default function Carousel() {
+  const breeds = useGetBreedsQuery();
   const items = breeds.data?.map((breed: Breed) => {
     return (
       <a
@@ -60,6 +58,4 @@ export const Carousel = () => {
       />
     </div>
   );
-};
-
-export default Carousel;
+}

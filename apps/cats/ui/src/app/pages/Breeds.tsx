@@ -2,14 +2,12 @@ import Banner from '../components/Banner/Banner';
 import BreedsTable from '../components/BreedsTable';
 import Navbar from '../components/Navbar';
 
-export const Homepage = () => {
+export default function Breeds() {
   return (
-    <div className="gradient-background">
+    <div>
       <Navbar />
       <Banner />
       <BreedsTable />
     </div>
   );
-};
-
-export default Homepage;
+}

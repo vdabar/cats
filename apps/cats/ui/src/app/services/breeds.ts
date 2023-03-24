@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { Breed } from '../types';
 
-export const useGetCountriesQuery = () => {
+export const useGetBreedsQuery = () => {
   return useQuery({
     queryKey: ['breeds'],
     queryFn: async () => {

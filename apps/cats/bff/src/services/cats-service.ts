@@ -1,4 +1,4 @@
-import { DeleteParams, GetParams, SearchParams, Cat } from '@cats/cats/types';
+import { DeleteCatDto, GetCatDto, SearchCatDto, GetCatResponseDto, AddCatDto } from '@cats/cats/types';
 import {
   addCat,
   deleteCat,
@@ -7,12 +7,12 @@ import {
   getCatsByName,
 } from '../dynamoDb';
 
-export async function postCat(cat: Cat): Promise<{ message: string }> {
+export async function postCat(cat: AddCatDto): Promise<{ message: string }> {
   await addCat(cat);
   return { message: 'Cat added' };
 }
 
-export async function handleGetCats({ id, name }: GetParams): Promise<Cat[]> {
+export async function handleGetCats({ id, name }: GetCatDto): Promise<GetCatResponseDto[]> {
   let result;
   if (id) {
     result = await getCatById(id);
@@ -30,7 +30,7 @@ export async function handleSearchCats({
   pageSize,
   sortField,
   sort,
-}: SearchParams): Promise<Cat[]> {
+}: SearchCatDto): Promise<GetCatResponseDto[]> {
   let cats = name ? await getCatsByName(name) : await getAllCats();
   if (page && pageSize) {
     const pageNumber = Number(page);
@@ -50,7 +50,7 @@ export async function handleSearchCats({
 
 export async function handleDeleteCat({
   id,
-}: DeleteParams): Promise<{ message: string }> {
+}: DeleteCatDto): Promise<{ message: string }> {
   await deleteCat(id);
   return { message: 'Cat deleted' };
 }

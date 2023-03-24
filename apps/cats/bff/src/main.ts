@@ -6,20 +6,21 @@ import {
 } from './services/cats-service';
 import { APIGatewayEvent, APIGatewayResponse } from 'aws-lambda';
 async function handler(event: APIGatewayEvent): Promise<APIGatewayResponse> {
+  console.log(event);
   let result;
   const queryParameters = event.queryStringParameters || {};
   try {
-    switch (`${event.httpMethod} /${event.pathParameters.proxy}`) {
-      case 'GET /cats':
+    switch (`${event.httpMethod} ${event.pathParameters.proxy}`) {
+      case 'GET api/cats':
         result = await handleGetCats(queryParameters);
         break;
-      case 'GET /cats/search':
+      case 'GET api/cats/search':
         result = await handleSearchCats(queryParameters);
         break;
-      case 'DELETE /cats':
+      case 'DELETE api/cats':
         result = await handleDeleteCat(queryParameters);
         break;
-      case 'POST /cats':
+      case 'POST api/cats':
         result = await postCat(event.body);
         break;
       default:

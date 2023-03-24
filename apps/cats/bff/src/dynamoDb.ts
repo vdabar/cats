@@ -1,16 +1,17 @@
-import { Cat } from '@cats/cats/types';
+import { GetCatResponseDto, AddCatDto } from '@cats/cats/types';
 import { DynamoDB } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import config from './config';
 
-export async function getAllCats(): Promise<Cat[]> {
+export async function getAllCats(): Promise<GetCatResponseDto[]> {
   const client = new DynamoDB({ region: 'eu-west-1' });
+  console.log(config.CATS_DYNAMO_TABLE)
   const params = { TableName: config.CATS_DYNAMO_TABLE };
   const result = await client.scan(params);
-  return result.Items?.map((item) => unmarshall(item)) as unknown as Cat[];
+  return result.Items?.map((item) => unmarshall(item)) as unknown as GetCatResponseDto[];
 }
 
-export async function addCat(cat: Cat) {
+export async function addCat(cat: AddCatDto) {
   const client = new DynamoDB({ region: 'eu-west-1' });
   const params = {
     TableName: config.CATS_DYNAMO_TABLE,
@@ -29,17 +30,17 @@ export function deleteCat(id: string) {
   return client.deleteItem(params);
 }
 
-export async function getCatById(id: string): Promise<Cat> {
+export async function getCatById(id: string): Promise<GetCatResponseDto> {
   const client = new DynamoDB({ region: 'eu-west-1' });
   const params = {
     TableName: config.CATS_DYNAMO_TABLE,
     Key: marshall({ id }),
   };
   const result = await client.getItem(params);
-  return result.Item ? (unmarshall(result.Item) as unknown as Cat) : undefined;
+  return result.Item ? (unmarshall(result.Item) as unknown as GetCatResponseDto) : undefined;
 }
 
-export async function getCatsByName(name: string): Promise<Cat[]> {
+export async function getCatsByName(name: string): Promise<GetCatResponseDto[]> {
   const client = new DynamoDB({ region: 'eu-west-1' });
   const params = {
     TableName: config.CATS_DYNAMO_TABLE,
@@ -49,5 +50,5 @@ export async function getCatsByName(name: string): Promise<Cat[]> {
     ExpressionAttributeValues: marshall({ ':name': name }),
   };
   const result = await client.query(params);
-  return result.Items?.map((item) => unmarshall(item)) as unknown as Cat[];
+  return result.Items?.map((item) => unmarshall(item)) as unknown as GetCatResponseDto[];
 }

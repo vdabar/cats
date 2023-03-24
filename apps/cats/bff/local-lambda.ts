@@ -1,8 +1,8 @@
+import * as dotenv from 'dotenv';
+dotenv.config( { path: `${__dirname}/.env`.replace('/dist', '') });
 import express from 'express';
 import { handler } from './src/main';
 import bodyParser from 'body-parser';
-import * as dotenv from 'dotenv';
-dotenv.config();
 const port = 3000;
 const app = express();
 app.use(bodyParser.json());

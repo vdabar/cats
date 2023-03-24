@@ -13,7 +13,7 @@ import {
   TableSortLabel,
   Box,
 } from '@mui/material';
-import { useGetCountriesQuery } from '../services/breeds';
+import { useGetBreedsQuery } from '../services/breeds';
 import { useState } from 'react';
 import { Breed } from '../types';
 import { visuallyHidden } from '@mui/utils';
@@ -60,9 +60,9 @@ export default function BreedsTable() {
   const [search, setSearch] = useState('');
   const [order, setOrder] = useState<Order>('asc');
   const [orderBy, setOrderBy] = useState<keyof Breed>('id');
-  const breeds = useGetCountriesQuery();
+  const breeds = useGetBreedsQuery();
 
-  const handleChangePage = (event: unknown, newPage: number) => {
+  const handleChangePage = (_event: unknown, newPage: number) => {
     setPage(newPage);
   };
 

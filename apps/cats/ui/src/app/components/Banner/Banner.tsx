@@ -1,6 +1,6 @@
 import { Container, Typography } from '@mui/material';
 import { styled } from '@mui/system';
-import { Carousel } from './Carousel';
+import Carousel from './Carousel';
 
 const BannerContent = styled('div')(({ theme }) => ({
   height: 400,
@@ -18,7 +18,7 @@ const Tagline = styled('div')(({ theme }) => ({
   textAlign: 'center',
 }));
 
-export function Banner() {
+export default function Banner() {
   return (
     <div style={{ background: '#250036' }}>
       <Container>
@@ -50,5 +50,3 @@ export function Banner() {
     </div>
   );
 }
-
-export default Banner;

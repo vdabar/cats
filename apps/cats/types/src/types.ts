@@ -1,6 +1,6 @@
 
 
-export interface Cat {
+export interface GetCatResponseDto {
   name: string;
   id: string;
   catGroup: string;
@@ -9,7 +9,7 @@ export interface Cat {
 }
 
 
-export interface SearchParams {
+export interface SearchCatDto {
   name?: string;
   page?: string;
   pageSize?: string;
@@ -17,16 +17,16 @@ export interface SearchParams {
   sortField?: string;
 }
 
-export interface DeleteParams {
+export interface DeleteCatDto {
   id?: string;
 }
 
-export interface GetParams {
+export interface GetCatDto {
   id?: string;
   name?: string;
 }
 
-export interface PostParams {
+export interface AddCatDto {
   name: string;
   id: string;
   catGroup: string;
