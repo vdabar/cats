@@ -16,7 +16,8 @@ export const useGetCatsQuery = () => {
 export const useAddCat = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (newCat: AddCatDto) => await axios.post(`/api/cats`, newCat),
+    mutationFn: async (newCat: AddCatDto) =>
+      await axios.post(`/api/cats`, newCat),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cats'] });
     },
@@ -26,7 +27,8 @@ export const useAddCat = () => {
 export const useDeleteCat = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({id}: DeleteCatDto) => await axios.delete(`/api/cats?id=${id}`),
+    mutationFn: async ({ id }: DeleteCatDto) =>
+      await axios.delete(`/api/cats/${id}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cats'] });
     },

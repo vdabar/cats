@@ -1,4 +1,10 @@
-import { DeleteCatDto, GetCatDto, SearchCatDto, GetCatResponseDto, AddCatDto } from '@cats/cats/types';
+import {
+  DeleteCatDto,
+  GetCatDto,
+  SearchCatDto,
+  GetCatResponseDto,
+  AddCatDto,
+} from '@cats/cats/types';
 import {
   addCat,
   deleteCat,
@@ -12,16 +18,22 @@ export async function postCat(cat: AddCatDto): Promise<{ message: string }> {
   return { message: 'Cat added' };
 }
 
-export async function handleGetCats({ id, name }: GetCatDto): Promise<GetCatResponseDto[]> {
+export async function handleGetCats({
+  name,
+}: GetCatDto): Promise<GetCatResponseDto[]> {
   let result;
-  if (id) {
-    result = await getCatById(id);
-  } else if (name) {
+  if (name) {
     result = await getCatsByName(name);
   } else {
     result = await getAllCats();
   }
   return result;
+}
+
+export async function handleGetCatById({
+  id,
+}: GetCatDto): Promise<GetCatResponseDto> {
+  return getCatById(id);
 }
 
 export async function handleSearchCats({

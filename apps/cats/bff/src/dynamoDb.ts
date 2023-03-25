@@ -1,54 +1,54 @@
 import { GetCatResponseDto, AddCatDto } from '@cats/cats/types';
-import { DynamoDB } from '@aws-sdk/client-dynamodb';
-import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
+import { DynamoDB } from 'aws-sdk';
 import config from './config';
 
 export async function getAllCats(): Promise<GetCatResponseDto[]> {
-  const client = new DynamoDB({ region: 'eu-west-1' });
-  console.log(config.CATS_DYNAMO_TABLE)
+  const client = new DynamoDB.DocumentClient();
   const params = { TableName: config.CATS_DYNAMO_TABLE };
-  const result = await client.scan(params);
-  return result.Items?.map((item) => unmarshall(item)) as unknown as GetCatResponseDto[];
+  const result = await client.scan(params).promise();
+  return result.Items as GetCatResponseDto[];
 }
 
 export async function addCat(cat: AddCatDto) {
-  const client = new DynamoDB({ region: 'eu-west-1' });
+  const client = new DynamoDB.DocumentClient();
   const params = {
     TableName: config.CATS_DYNAMO_TABLE,
-    Item: marshall(cat),
+    Item: cat,
     ReturnConsumedCapacity: 'TOTAL',
   };
-  return client.putItem(params);
+  return client.put(params).promise();
 }
 
 export function deleteCat(id: string) {
-  const client = new DynamoDB({ region: 'eu-west-1' });
+  const client = new DynamoDB.DocumentClient();
   const params = {
     TableName: config.CATS_DYNAMO_TABLE,
-    Key: marshall({ id }),
+    Key: { id },
   };
-  return client.deleteItem(params);
+  return client.delete(params).promise();
 }
 
 export async function getCatById(id: string): Promise<GetCatResponseDto> {
-  const client = new DynamoDB({ region: 'eu-west-1' });
+  const client = new DynamoDB.DocumentClient();
   const params = {
     TableName: config.CATS_DYNAMO_TABLE,
-    Key: marshall({ id }),
+    Key: { id },
   };
-  const result = await client.getItem(params);
-  return result.Item ? (unmarshall(result.Item) as unknown as GetCatResponseDto) : undefined;
+  const result = await client.get(params).promise();
+  return result.Item as GetCatResponseDto;
 }
 
-export async function getCatsByName(name: string): Promise<GetCatResponseDto[]> {
-  const client = new DynamoDB({ region: 'eu-west-1' });
+export async function getCatsByName(
+  name: string
+): Promise<GetCatResponseDto[]> {
+  const client = new DynamoDB.DocumentClient();
   const params = {
     TableName: config.CATS_DYNAMO_TABLE,
     IndexName: 'NameIndex',
     KeyConditionExpression: '#name = :name',
     ExpressionAttributeNames: { '#name': 'name' },
-    ExpressionAttributeValues: marshall({ ':name': name }),
+    ExpressionAttributeValues: { ':name': name },
   };
-  const result = await client.query(params);
-  return result.Items?.map((item) => unmarshall(item)) as unknown as GetCatResponseDto[];
+  const result = await client.query(params).promise();
+  return result.Items as GetCatResponseDto[];
 }

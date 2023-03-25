@@ -6,16 +6,41 @@ terraform {
   }
 }
 
+
+locals {
+  build_artifacts_to_upload = flatten([
+    for filename in fileset("${var.deployment_package_dir}/apps/cats/ui", "**") : {
+      from        = "${var.deployment_package_dir}/apps/cats/ui/${filename}"
+      source_hash = filemd5("${var.deployment_package_dir}/apps/cats/ui/${filename}")
+      to          = "ui/cats/${filename}"
+    }
+  ])
+  mime_types = {
+    ".html" = "text/html",
+    ".htm"  = "text/html",
+    ".ico"  = "image/vnd.microsoft.icon",
+    ".js"   = "text/javascript",
+    ".mjs"  = "text/javascript",
+    ".jpg"  = "image/jpeg",
+    ".jpeg" = "image/jpeg",
+    ".css"  = "text/css",
+    ".png"  = "image/png",
+    ".svg"  = "image/svg+xml",
+    ".ttf"  = "font/ttf",
+    ".woff" = "font/woff",
+    ".json" = "application/json"
+  }
+}
 provider "aws" {
   region = var.aws_region
 }
 
-resource "aws_s3_bucket" "lambda_bucket" {
+resource "aws_s3_bucket" "cats_project_bucket" {
   bucket = "cat-breeds-project-lambdas"
 }
 
 resource "aws_s3_bucket_acl" "bucket_acl" {
-  bucket = aws_s3_bucket.lambda_bucket.id
+  bucket = aws_s3_bucket.cats_project_bucket.id
   acl    = "private"
 }
 
@@ -27,8 +52,8 @@ data "archive_file" "cats_bff" {
 }
 
 resource "aws_s3_object" "cats_bff" {
-  bucket = aws_s3_bucket.lambda_bucket.id
-  key    = "cats-bff.zip"
+  bucket = aws_s3_bucket.cats_project_bucket.id
+  key    = "bff/cats-bff.zip"
   source = data.archive_file.cats_bff.output_path
   etag   = filemd5(data.archive_file.cats_bff.output_path)
 }
@@ -36,7 +61,7 @@ resource "aws_s3_object" "cats_bff" {
 resource "aws_lambda_function" "cats_bff" {
   function_name = "cats_bff"
 
-  s3_bucket = aws_s3_bucket.lambda_bucket.id
+  s3_bucket = aws_s3_bucket.cats_project_bucket.id
   s3_key    = aws_s3_object.cats_bff.key
 
   runtime = "nodejs16.x"
@@ -115,7 +140,19 @@ resource "aws_apigatewayv2_integration" "cats_bff" {
 resource "aws_apigatewayv2_route" "cats_bff" {
   api_id = aws_apigatewayv2_api.lambda.id
 
-  route_key = "ANY /{proxy+}"
+  route_key = "ANY /api/cats"
+  target    = "integrations/${aws_apigatewayv2_integration.cats_bff.id}"
+}
+resource "aws_apigatewayv2_route" "cats_bff_search" {
+  api_id = aws_apigatewayv2_api.lambda.id
+
+  route_key = "ANY /api/cats/search"
+  target    = "integrations/${aws_apigatewayv2_integration.cats_bff.id}"
+}
+resource "aws_apigatewayv2_route" "cats_bff_id" {
+  api_id = aws_apigatewayv2_api.lambda.id
+
+  route_key = "GET /api/cats/{id}"
   target    = "integrations/${aws_apigatewayv2_integration.cats_bff.id}"
 }
 
@@ -173,8 +210,153 @@ resource "aws_dynamodb_table" "cats_table" {
   }
 
   global_secondary_index {
-    name               = "NameIndex"
-    hash_key           = "name"
-    projection_type    = "ALL"
+    name            = "NameIndex"
+    hash_key        = "name"
+    projection_type = "ALL"
   }
+}
+resource "aws_cloudfront_origin_access_identity" "oai" {
+  comment = "cats-ui OAI"
+}
+resource "aws_cloudfront_distribution" "cf_distribution" {
+  origin {
+    domain_name = aws_s3_bucket.cats_project_bucket.bucket_regional_domain_name
+    origin_path = "/ui/cats"
+    origin_id   = "website"
+
+    s3_origin_config {
+      origin_access_identity = aws_cloudfront_origin_access_identity.oai.cloudfront_access_identity_path
+    }
+  }
+  origin {
+    domain_name = "${aws_apigatewayv2_api.lambda.id}.execute-api.eu-west-1.amazonaws.com"
+    origin_id   = "api"
+    origin_path = "/serverless_lambda_stage"
+    custom_origin_config {
+      http_port              = 80
+      https_port             = 443
+      origin_protocol_policy = "https-only"
+      origin_ssl_protocols = [
+        "TLSv1",
+        "TLSv1.1",
+        "TLSv1.2"
+      ]
+    }
+  }
+
+  enabled         = true
+  is_ipv6_enabled = true
+
+  default_root_object = "index.html"
+
+  default_cache_behavior {
+    allowed_methods  = ["GET", "HEAD", "OPTIONS"]
+    cached_methods   = ["GET", "HEAD"]
+    target_origin_id = "website"
+
+    forwarded_values {
+      query_string = false
+
+      cookies {
+        forward = "none"
+      }
+    }
+
+    viewer_protocol_policy = "redirect-to-https"
+    min_ttl                = 0
+    default_ttl            = 3600
+    max_ttl                = 86400
+    compress               = true
+  }
+  ordered_cache_behavior {
+    allowed_methods          = ["HEAD", "DELETE", "POST", "GET", "OPTIONS", "PUT", "PATCH"]
+    cached_methods           = ["GET", "HEAD"]
+    path_pattern             = "api/*"
+    target_origin_id         = "api"
+    viewer_protocol_policy   = "allow-all"
+    forwarded_values {
+      query_string = true
+
+      cookies {
+        forward = "none"
+      }
+    }
+  }
+
+  ordered_cache_behavior {
+    path_pattern     = "/index.html"
+    allowed_methods  = ["GET", "HEAD", "OPTIONS"]
+    cached_methods   = ["GET", "HEAD", "OPTIONS"]
+    target_origin_id = "website"
+
+    forwarded_values {
+      query_string = false
+
+      cookies {
+        forward = "none"
+      }
+    }
+
+    min_ttl                = 0
+    default_ttl            = 0
+    max_ttl                = 0
+    compress               = true
+    viewer_protocol_policy = "redirect-to-https"
+  }
+
+  price_class = "PriceClass_100"
+
+  viewer_certificate {
+    cloudfront_default_certificate = true
+  }
+
+  retain_on_delete = true
+
+  custom_error_response {
+    error_caching_min_ttl = 300
+    error_code            = 403
+    response_code         = 200
+    response_page_path    = "/index.html"
+  }
+
+  custom_error_response {
+    error_caching_min_ttl = 300
+    error_code            = 404
+    response_code         = 200
+    response_page_path    = "/index.html"
+  }
+
+  restrictions {
+    geo_restriction {
+      restriction_type = "none"
+    }
+  }
+}
+data "aws_iam_policy_document" "react_app_s3_policy" {
+  statement {
+    actions   = ["s3:GetObject"]
+    resources = ["${aws_s3_bucket.cats_project_bucket.arn}/ui/*"]
+
+    principals {
+      type        = "AWS"
+      identifiers = [aws_cloudfront_origin_access_identity.oai.iam_arn]
+    }
+  }
+}
+
+resource "aws_s3_bucket_policy" "react_app_bucket_policy" {
+  bucket = aws_s3_bucket.cats_project_bucket.id
+  policy = data.aws_iam_policy_document.react_app_s3_policy.json
+}
+
+resource "aws_s3_object" "remove_and_upload_to_s3" {
+  for_each = {
+    for upload in local.build_artifacts_to_upload : "${upload.from}/${upload.to}" => upload
+  }
+
+  content_type = lookup(local.mime_types, regex("\\.[^.]+$", each.value.from), null)
+  source_hash  = each.value.source_hash
+  bucket       = aws_s3_bucket.cats_project_bucket.id
+  key          = each.value.to
+  source       = each.value.from
 }
