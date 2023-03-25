@@ -12,47 +12,13 @@ import {
   TablePagination,
   TableSortLabel,
   Box,
+  Skeleton,
 } from '@mui/material';
 import { useGetBreedsQuery } from '../services/breeds';
 import { useState } from 'react';
 import { Breed } from '../types';
 import { visuallyHidden } from '@mui/utils';
-
-function stableSort<T>(
-  array: readonly T[],
-  comparator: (a: T, b: T) => number
-) {
-  const stabilizedThis = array.map((el, index) => [el, index] as [T, number]);
-  stabilizedThis.sort((a, b) => {
-    const order = comparator(a[0], b[0]);
-    if (order !== 0) {
-      return order;
-    }
-    return a[1] - b[1];
-  });
-  return stabilizedThis.map((el) => el[0]);
-}
-
-function getComparator<Key extends keyof any>(
-  order: Order,
-  orderBy: Key
-): (a: { [key in Key]: unknown }, b: { [key in Key]: unknown }) => number {
-  return order === 'desc'
-    ? (a, b) => descendingComparator(a, b, orderBy)
-    : (a, b) => -descendingComparator(a, b, orderBy);
-}
-
-function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
-  if (b[orderBy] < a[orderBy]) {
-    return -1;
-  }
-  if (b[orderBy] > a[orderBy]) {
-    return 1;
-  }
-  return 0;
-}
-
-type Order = 'asc' | 'desc';
+import { getComparator, Order, stableSort } from '../utils/sort';
 
 export default function BreedsTable() {
   const [page, setPage] = useState(0);
@@ -60,7 +26,7 @@ export default function BreedsTable() {
   const [search, setSearch] = useState('');
   const [order, setOrder] = useState<Order>('asc');
   const [orderBy, setOrderBy] = useState<keyof Breed>('id');
-  const breeds = useGetBreedsQuery();
+  const { data, isLoading } = useGetBreedsQuery();
 
   const handleChangePage = (_event: unknown, newPage: number) => {
     setPage(newPage);
@@ -74,8 +40,10 @@ export default function BreedsTable() {
   };
 
   const handleSearch = () => {
-    return (breeds.data || []).filter(
+    return (data || []).filter(
       (breed) =>
+        breed.temperament.toLowerCase().includes(search) ||
+        breed.id.toLowerCase().includes(search) ||
         breed.name.toLowerCase().includes(search) ||
         breed.description.toLowerCase().includes(search)
     );
@@ -154,38 +122,42 @@ export default function BreedsTable() {
                 </TableCell>
               </TableRow>
             </TableHead>
-            <TableBody>
-              {stableSort(handleSearch(), getComparator(order, orderBy))
-                ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((row) => (
-                  <TableRow
-                    key={row.name}
-                    onClick={() => navigate(row.vetstreet_url)}
-                    sx={{
-                      '&:last-child td, &:last-child th': { border: 0 },
-                      cursor: 'pointer',
-                      '&:hover': {
-                        backgroundColor: '#d7d7d7',
-                      },
-                    }}
-                  >
-                    <TableCell component="th" scope="row">
-                      {row.id}
-                    </TableCell>
-                    <TableCell>
-                      <img
-                        src={`https://cdn2.thecatapi.com/images/${row.reference_image_id}.jpg`}
-                        alt={row.name}
-                        height="50"
-                      />
-                    </TableCell>
-                    <TableCell>{row.name}</TableCell>
-                    <TableCell>{row.energy_level}</TableCell>
-                    <TableCell>{row.temperament}</TableCell>
-                    <TableCell>{row.description}</TableCell>
-                  </TableRow>
-                ))}
-            </TableBody>
+            {isLoading ? (
+              <SkeletonTable />
+            ) : (
+              <TableBody>
+                {stableSort(handleSearch(), getComparator(order, orderBy))
+                  ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                  .map((row) => (
+                    <TableRow
+                      key={row.name}
+                      onClick={() => navigate(row.vetstreet_url)}
+                      sx={{
+                        '&:last-child td, &:last-child th': { border: 0 },
+                        cursor: 'pointer',
+                        '&:hover': {
+                          backgroundColor: '#d7d7d7',
+                        },
+                      }}
+                    >
+                      <TableCell component="th" scope="row">
+                        {row.id}
+                      </TableCell>
+                      <TableCell>
+                        <img
+                          src={`https://cdn2.thecatapi.com/images/${row.reference_image_id}.jpg`}
+                          alt={row.name}
+                          height="50"
+                        />
+                      </TableCell>
+                      <TableCell>{row.name}</TableCell>
+                      <TableCell>{row.energy_level}</TableCell>
+                      <TableCell>{row.temperament}</TableCell>
+                      <TableCell>{row.description}</TableCell>
+                    </TableRow>
+                  ))}
+              </TableBody>
+            )}
           </Table>
         </TableContainer>
         <TablePagination
@@ -201,3 +173,32 @@ export default function BreedsTable() {
     </Container>
   );
 }
+
+const SkeletonTable = () => {
+  return (
+    <TableBody>
+      {Array.from({ length: 10 }).map(() => (
+        <TableRow>
+          <TableCell>
+            <Skeleton width="2vw" />
+          </TableCell>
+          <TableCell>
+            <Skeleton width="6vw" />
+          </TableCell>
+          <TableCell>
+            <Skeleton width="7vw" />
+          </TableCell>
+          <TableCell>
+            <Skeleton />
+          </TableCell>
+          <TableCell>
+            <Skeleton width="9vw" />
+          </TableCell>
+          <TableCell>
+            <Skeleton width="29vw" />
+          </TableCell>
+        </TableRow>
+      ))}
+    </TableBody>
+  );
+};
