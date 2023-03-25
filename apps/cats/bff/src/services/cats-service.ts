@@ -4,6 +4,7 @@ import {
   SearchCatDto,
   GetCatResponseDto,
   AddCatDto,
+  GetCatByIdDto,
 } from '@cats/cats/types';
 import {
   addCat,
@@ -32,7 +33,7 @@ export async function handleGetCats({
 
 export async function handleGetCatById({
   id,
-}: GetCatDto): Promise<GetCatResponseDto> {
+}: GetCatByIdDto): Promise<GetCatResponseDto> {
   return getCatById(id);
 }
 

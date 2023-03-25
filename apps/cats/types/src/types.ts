@@ -18,12 +18,15 @@ export interface SearchCatDto {
 }
 
 export interface DeleteCatDto {
-  id?: string;
+  id: string;
 }
 
 export interface GetCatDto {
-  id?: string;
   name?: string;
+}
+
+export interface GetCatByIdDto {
+  id: string;
 }
 
 export interface AddCatDto {
