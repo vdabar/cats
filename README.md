@@ -15,3 +15,28 @@ Run `npx nx connect-to-nx-cloud` to enable [remote caching](https://nx.app) and 
 ## Further help
 
 Visit the [Nx Documentation](https://nx.dev) to learn more.
+
+
+## deploy to AWS
+- setup your aws credentials in `~/.aws/credentials` file 
+```
+[default]
+aws_access_key_id = YOUR KEY ID
+aws_secret_access_key = YOUR ACCESS KEY
+```
+- create terraform remote state bucket on your AWS account
+```
+aws s3api create-bucket \
+    --bucket cat-breeds-terraform-remote \
+    --region eu-west-1 \
+    --create-bucket-configuration LocationConstraint=eu-west-1
+```
+- init terraform
+```
+cd .ci/cat-breeds
+terraform init -backend-config="bucket=cat-breeds-terraform-remote"
+```
+- apply terraform
+```
+terraform apply -auto-approve -var-file=configuration.tfvars
+```
