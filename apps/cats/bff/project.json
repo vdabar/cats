@@ -15,7 +15,6 @@
         "outputPath": "dist/apps/cats/bff",
         "main": "apps/cats/bff/src/main.ts",
         "tsConfig": "apps/cats/bff/tsconfig.app.json",
-        "assets": ["apps/cats/bff/src/assets"],
         "isolatedConfig": true,
         "webpackConfig": "apps/cats/bff/webpack.config.js"
       },
